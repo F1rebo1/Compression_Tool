@@ -1,4 +1,6 @@
-public class HuffTree implements Comparable{
+import java.util.*;
+
+public class HuffmanTree implements Comparable{
     private IHuffmanBaseNode root;
 
     public HuffmanTree(char el, int wt){
@@ -14,20 +16,20 @@ public class HuffTree implements Comparable{
     }
 
     public int weight(){
-        return this.root.weight;
+        return this.root.weight();
     }
 
     public int compareTo(Object t){
-        HuffTree other = (HuffTree)t;
+        HuffmanTree other = (HuffmanTree)t;
         if(this.root.weight() < other.weight()) return -1;
         else if(this.root.weight() == other.weight()) return 0;
         else return 1;
     }
 
-    public static buildTree(){
+    public static HuffmanTree buildTree(PriorityQueue<HuffmanTree> pq){
         HuffmanTree temp1 = null, temp2 = null, temp3 = null;
 
-        PriorityQueue<HuffmanTree> pq = new PriorityQueue<>((a,b) -> a.weight() - b.weight());
+        // PriorityQueue<HuffmanTree> pq = new PriorityQueue<>((a,b) -> a.weight() - b.weight());
         while(pq.size() > 1){
             temp1 = pq.poll();
             temp2 = pq.poll();

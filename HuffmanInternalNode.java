@@ -1,9 +1,9 @@
-public class HuffLeafNode implements IHuffmanBaseNode{
-    HuffLeafNode left;
-    HuffLeafNode right;
+public class HuffmanInternalNode implements IHuffmanBaseNode{
+    IHuffmanBaseNode left;
+    IHuffmanBaseNode right;
     int weight;
 
-    public HuffLeafNode(HuffLeafNode l, HuffLeafNode r, int wt){
+    public HuffmanInternalNode(IHuffmanBaseNode l, IHuffmanBaseNode r, int wt){
         this.left = l;
         this.right = r;
         this.weight = wt;
