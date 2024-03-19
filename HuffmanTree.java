@@ -29,7 +29,6 @@ public class HuffmanTree implements Comparable{
     public static HuffmanTree buildTree(PriorityQueue<HuffmanTree> pq){
         HuffmanTree temp1 = null, temp2 = null, temp3 = null;
 
-        // PriorityQueue<HuffmanTree> pq = new PriorityQueue<>((a,b) -> a.weight() - b.weight());
         while(pq.size() > 1){
             temp1 = pq.poll();
             temp2 = pq.poll();
@@ -37,5 +36,27 @@ public class HuffmanTree implements Comparable{
             pq.add(temp3);
         }
         return temp3;
+    }
+
+    public void preorderTraversal() {
+        preorderTraversal(this.root);
+    }
+
+    private void preorderTraversal(IHuffmanBaseNode node) {
+        if (node == null) {
+            return;
+        }
+
+        if (node.isLeaf()) {
+            HuffmanLeafNode leaf = (HuffmanLeafNode) node;
+            System.out.println("Character: " + leaf.value() + ", Weight: " + leaf.weight());
+        }
+
+        if (node instanceof HuffmanInternalNode) {
+            HuffmanInternalNode internalNode = (HuffmanInternalNode) node;
+            System.out.println("Internal Node, Weight: " + internalNode.weight());
+            preorderTraversal(internalNode.left());
+            preorderTraversal(internalNode.right());
+        }
     }
 }
