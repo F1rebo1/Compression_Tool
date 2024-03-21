@@ -1,11 +1,15 @@
 import java.util.*;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.FileNotFoundException;
 
 public class Compress{
     public static void main(String args[]){
         // String fileName = "./test.txt";
-        String fileName = "./test2.txt";
+        // String fileName = "./test2.txt";
+        String fileName = args[0];
 
         HashMap<Character,Integer> hm = countChars(fileName);
         PriorityQueue<HuffmanTree> pq = new PriorityQueue<>((a,b) -> a.weight() - b.weight());
@@ -29,7 +33,10 @@ public class Compress{
         
         System.out.println("Your arguments are: ");
         for(String s : args) System.out.println(s);
-        System.out.println("The output (compressed) file will be called: " + args[0]);
+        String compressedFileName = args[1];
+        System.out.println("The output (compressed) file will be called: " + compressedFileName + ".txt");
+
+        writeToCompressedFile(fileName,compressedFileName,prefixTable);
     }
 
     public static HashMap<Character,Integer> countChars(String fileName){
@@ -50,4 +57,32 @@ public class Compress{
 
         return hm;
     }
+
+    public static void writeToCompressedFile(String fileName, String compressedFileName, HashMap<IHuffmanBaseNode,String> header){
+        try{
+            File file = new File(compressedFileName);
+            FileWriter fw = new FileWriter(file + ".txt");
+            BufferedWriter out = new BufferedWriter(fw);
+            // out.write("Writing to Compressed File");
+
+            //Writing the header (prefixTable) so that we can decode the compressed file
+            for(Map.Entry<IHuffmanBaseNode,String> entry : header.entrySet()){
+                HuffmanLeafNode node = (HuffmanLeafNode) entry.getKey();
+                out.write(node.value() + "," + entry.getValue() + " ");
+            }
+            out.write("\n");
+
+            //Encoding and writing the encoded contents of the file to be compressed
+            // encodeData(fileName,header);
+            
+
+            out.close();
+        }catch(IOException e){
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    // public static void encodeData(String fileName, HashMap<IHuffmanBaseNode,String> header){
+        
+    // }
 }
