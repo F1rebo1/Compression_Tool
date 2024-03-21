@@ -9,25 +9,27 @@ public class Compress{
 
         HashMap<Character,Integer> hm = countChars(fileName);
         PriorityQueue<HuffmanTree> pq = new PriorityQueue<>((a,b) -> a.weight() - b.weight());
-        // PriorityQueue<HuffmanLeafNode> pq_nodes = new PriorityQueue<>((a,b) -> a.weight() - b.weight());
-        PriorityQueue<HuffmanTree> pq_nodes = new PriorityQueue<>((a,b) -> a.weight() - b.weight());
 
         for(Map.Entry<Character,Integer> entry : hm.entrySet()){
             pq.add(new HuffmanTree(entry.getKey(),entry.getValue()));
         }
 
-        HuffmanTree root = HuffmanTree.buildTree(pq);
+        HuffmanTree root = HuffmanTree.buildTree(pq);   //root now contains the head (node) of the HuffmanTree
         
-        System.out.println("Performing Preorder Traversal:");
-        root.preorderTraversal();
+        // System.out.println("Performing Preorder Traversal:");    //This is just for debugging purposes
+        // root.preorderTraversal();
 
-        HashMap<IHuffmanBaseNode,String> prefixTable = new HashMap<>();
+        HashMap<IHuffmanBaseNode,String> prefixTable = new HashMap<>(); //prefixTable now stores the encoding data mapping each character to its corresponding bit string
         root.createPrefixTable(root,prefixTable);
 
         for(Map.Entry<IHuffmanBaseNode,String> entry : prefixTable.entrySet()){
             HuffmanLeafNode node = (HuffmanLeafNode) entry.getKey();
-            System.out.println("Key: " + node.value() + ", Prefix Code = " + entry.getValue());
+            System.out.println("Key: " + node.value() + ", Prefix Code = " + entry.getValue() + ", " + Integer.parseInt(entry.getValue(), 2));
         }
+        
+        System.out.println("Your arguments are: ");
+        for(String s : args) System.out.println(s);
+        System.out.println("The output (compressed) file will be called: " + args[0]);
     }
 
     public static HashMap<Character,Integer> countChars(String fileName){
