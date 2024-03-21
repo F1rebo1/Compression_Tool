@@ -39,25 +39,32 @@ public class HuffmanTree implements Comparable{
     }
 
     public void createPrefixTable(HuffmanTree root, HashMap<IHuffmanBaseNode,String> prefixTable){
-        // System.out.println("Henlo");
-        createTable(this.root,prefixTable);
+        System.out.println("Henlo");
+        String toBeAdded = "";
+        createTable(this.root,prefixTable,toBeAdded);
     }
 
-    public void createTable(IHuffmanBaseNode root, HashMap<IHuffmanBaseNode,String> prefixTable){
+    public void createTable(IHuffmanBaseNode root, HashMap<IHuffmanBaseNode,String> prefixTable, String toBeAdded){
         HuffmanInternalNode internalNode = null;
         if(root instanceof HuffmanInternalNode) internalNode = (HuffmanInternalNode) root;
 
         if(internalNode == null || internalNode.isLeaf()) return;
         
         if(internalNode.left().isLeaf()){
-            prefixTable.put(internalNode.left(),prefixTable.getOrDefault(internalNode.left(),"") + "0");
+            HuffmanLeafNode node = (HuffmanLeafNode) internalNode.left();
+            System.out.println("Adding 0 to " + node.value());
+            // System.out.println("Adding 0 to " + internalNode.left().value());
+            prefixTable.put(internalNode.left(),prefixTable.getOrDefault(internalNode.left(),"") + toBeAdded + "0");
         }
-        createTable(internalNode.left(),prefixTable);
+        createTable(internalNode.left(),prefixTable,toBeAdded + "0");
 
         if(internalNode.right().isLeaf()){
-            prefixTable.put(internalNode.right(),prefixTable.getOrDefault(internalNode.right(),"") + "1");
+            HuffmanLeafNode node = (HuffmanLeafNode) internalNode.right();
+            System.out.println("Adding 1 to " + node.value());
+            // System.out.println("Adding 1 to " + internalNode.right().value());
+            prefixTable.put(internalNode.right(),prefixTable.getOrDefault(internalNode.right(),"") + toBeAdded + "1");
         }
-        createTable(internalNode.right(),prefixTable);
+        createTable(internalNode.right(),prefixTable,toBeAdded + "1");
         
         return;
     }
