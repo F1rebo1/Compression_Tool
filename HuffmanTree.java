@@ -38,18 +38,41 @@ public class HuffmanTree implements Comparable{
         return temp3;
     }
 
+    public void createPrefixTable(HuffmanTree root, HashMap<IHuffmanBaseNode,String> prefixTable){
+        // System.out.println("Henlo");
+        createTable(this.root,prefixTable);
+    }
+
+    public void createTable(IHuffmanBaseNode root, HashMap<IHuffmanBaseNode,String> prefixTable){
+        HuffmanInternalNode internalNode = null;
+        if(root instanceof HuffmanInternalNode) internalNode = (HuffmanInternalNode) root;
+
+        if(internalNode == null || internalNode.isLeaf()) return;
+        
+        if(internalNode.left().isLeaf()){
+            prefixTable.put(internalNode.left(),prefixTable.getOrDefault(internalNode.left(),"") + "0");
+        }
+        createTable(internalNode.left(),prefixTable);
+
+        if(internalNode.right().isLeaf()){
+            prefixTable.put(internalNode.right(),prefixTable.getOrDefault(internalNode.right(),"") + "1");
+        }
+        createTable(internalNode.right(),prefixTable);
+        
+        return;
+    }
+
     public void preorderTraversal() {
         preorderTraversal(this.root);
     }
 
     private void preorderTraversal(IHuffmanBaseNode node) {
-        if (node == null) {
-            return;
-        }
+        if (node == null) return;        
 
         if (node.isLeaf()) {
             HuffmanLeafNode leaf = (HuffmanLeafNode) node;
             System.out.println("Character: " + leaf.value() + ", Weight: " + leaf.weight());
+            return;
         }
 
         if (node instanceof HuffmanInternalNode) {

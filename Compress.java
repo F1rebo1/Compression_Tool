@@ -15,11 +15,19 @@ public class Compress{
         for(Map.Entry<Character,Integer> entry : hm.entrySet()){
             pq.add(new HuffmanTree(entry.getKey(),entry.getValue()));
         }
-        
+
         HuffmanTree root = HuffmanTree.buildTree(pq);
         
         System.out.println("Performing Preorder Traversal:");
         root.preorderTraversal();
+
+        HashMap<IHuffmanBaseNode,String> prefixTable = new HashMap<>();
+        root.createPrefixTable(root,prefixTable);
+
+        for(Map.Entry<IHuffmanBaseNode,String> entry : prefixTable.entrySet()){
+            HuffmanLeafNode node = (HuffmanLeafNode) entry.getKey();
+            System.out.println("Key: " + node.value() + ", Prefix Code = " + entry.getValue());
+        }
     }
 
     public static HashMap<Character,Integer> countChars(String fileName){
