@@ -189,7 +189,7 @@ public class Compress{
                 while(keyboard.hasNextLine()){
                     String data = keyboard.nextLine();
                     int start = 0, end = 1;
-                    System.out.println("data.length()" + data.length());
+                    System.out.println("data.length(): " + data.length());
                     while(end < data.length() + 1){
                         if(headerPrefixTable.containsKey(data.substring(start,end))){
                             System.out.println("Found key: " + data.substring(start,end) + ", value: " + headerPrefixTable.get(data.substring(start,end)));
