@@ -41,6 +41,7 @@ public class Compress{
         //fileName refers to the file being read and compressed
         //compressedFileName is the name of the compressed file
         writeToCompressedFile(fileName,compressedFileName,prefixTable);
+        // writeToCompressedFile(fileName,compressedFileName,root);
 
         String newFile = "uncompressed.txt";
         decompressFile(compressedFileName,newFile);
@@ -120,24 +121,56 @@ public class Compress{
                 System.out.println(binaryStr);
 
                 // Pack bit strings into bytes
-                StringBuilder buffer = new StringBuilder();
-                List<Byte> packedBytes = new ArrayList<>();
-
-                for (char bit : binaryStr.toString().toCharArray()) {
-                    buffer.append(bit);
-
-                    if (buffer.length() == 8) {
-                        packedBytes.add((byte) Integer.parseInt(buffer.toString(), 2));
-                        buffer.setLength(0);  // Clear buffer
-                    }
+                // StringBuilder buffer = new StringBuilder();
+                // List<Byte> packedBytes = new ArrayList<>();
+                
+                StringBuilder paddedBitString = binaryStr;
+                while(paddedBitString.length() % 8 != 0){
+                    paddedBitString.append("0");
                 }
 
-                if (buffer.length() > 0) {
-                    while (buffer.length() < 8) {
-                        buffer.append('0');
-                    }
-                    packedBytes.add((byte) Integer.parseInt(buffer.toString(), 2));
+                int padding = paddedBitString.length() - binaryStr.length();
+                int byteCount = paddedBitString.length() / 8;
+                int[] bytes = new int[byteCount];
+
+                for(int i = 0; i < byteCount; i++) {
+                    int start = i * 8;
+                    int end = start + 8;
+                    String byteStr = paddedBitString.toString().substring(start, end);
+                    bytes[i] = Integer.parseInt(byteStr, 2);
                 }
+                
+                String binaryString = "";
+
+                for(int i = 0; i < bytes.length; i++) {
+                    int byteNum = bytes[i];
+                    System.out.println("byteNum: " + byteNum);
+                    binaryString += String.valueOf(byteNum);
+                }
+                System.out.println("[Padded] binaryString = " + binaryString);
+                // Remove padding
+                binaryString.substring(0, binaryString.length() - padding);
+                System.out.println("[Unpadded] binaryString = " + binaryString);
+
+                // output.write(binaryString);
+
+                // for(char bit : binaryStr.toString().toCharArray()){
+                //     buffer.append(bit);
+
+                //     if(buffer.length() == 8){
+                //         System.out.println("cur byte: " + (byte) Integer.parseInt(buffer.toString(), 2));
+                //         packedBytes.add((byte) Integer.parseInt(buffer.toString(), 2));
+                //         buffer.setLength(0);  // Clear buffer
+                //     }
+                // }
+
+                // if(buffer.length() > 0){
+                //     while(buffer.length() < 8){
+                //         buffer.append('0');
+                //     }
+                //     System.out.println("cur byte: " + (byte) Integer.parseInt(buffer.toString(), 2));
+                //     packedBytes.add((byte) Integer.parseInt(buffer.toString(), 2));
+                // }
                 
                 keyboard.close();
             }catch (FileNotFoundException e){
@@ -150,6 +183,36 @@ public class Compress{
             System.err.println("Error: " + e.getMessage());
         }
     }
+
+    // public static void writeToCompressedFile(String fileName, String compressedFileName, HuffmanTree root){
+    //     try{
+    //         File file = new File(compressedFileName + ".txt");
+    //         FileWriter fw = new FileWriter(file);
+    //         // FileOutputStream fos = new FileOutputStream(compressedFileName + ".txt");
+    //         // FileWriter fw = new FileWriter(file + ".bin");
+    //         BufferedWriter output = new BufferedWriter(fw);
+    //         // output.write("Writing to Compressed File");
+
+    //         //Writing the header (prefixTable) so that we can decode the compressed file
+    //         output.write(root);
+    //         System.out.println("Writing header");
+    //         String head = "";
+    //         for(Map.Entry<IHuffmanBaseNode,String> entry : header.entrySet()){
+    //             HuffmanLeafNode node = (HuffmanLeafNode) entry.getKey();
+    //             // head += node.value() + "," + entry.getValue() + "`";
+    //             // output.write(node.value() + "," + entry.getValue() + "`");
+    //             head += node.value() + "`" + entry.getValue() + "<>";
+    //             output.write(node.value() + "`" + entry.getValue() + "<>");
+    //         }
+    //         output.write("\n");
+    //         System.out.println("Header created successfully:");
+    //         System.out.println(head);
+
+    //         }catch (FileNotFoundException e){
+    //             System.out.println("[ERROR] The file could not be opened.");
+    //             e.printStackTrace();
+    //         }
+    // }
 
     public static void decompressFile(String compressedFileName, String newFile){
 

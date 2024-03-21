@@ -39,7 +39,6 @@ public class HuffmanTree implements Comparable{
     }
 
     public void createPrefixTable(HuffmanTree root, HashMap<IHuffmanBaseNode,String> prefixTable){
-        System.out.println("Henlo");
         String toBeAdded = "";
         createTable(this.root,prefixTable,toBeAdded);
     }
