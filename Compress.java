@@ -37,7 +37,9 @@ public class Compress{
         for(String s : args) System.out.println(s);
         String compressedFileName = args[1];
         // System.out.println("The output (compressed) file will be called: " + compressedFileName + ".txt");
-
+        
+        //fileName refers to the file being read and compressed
+        //compressedFileName is the name of the compressed file
         writeToCompressedFile(fileName,compressedFileName,prefixTable);
 
         String newFile = "uncompressed.txt";
@@ -71,9 +73,9 @@ public class Compress{
         }
 
         try{
-            File file = new File(compressedFileName);
-            FileWriter fw = new FileWriter(file + ".txt");
-            FileOutputStream fos = new FileOutputStream(compressedFileName);
+            File file = new File(compressedFileName + ".txt");
+            FileWriter fw = new FileWriter(file);
+            // FileOutputStream fos = new FileOutputStream(compressedFileName + ".txt");
             // FileWriter fw = new FileWriter(file + ".bin");
             BufferedWriter output = new BufferedWriter(fw);
             // out.write("Writing to Compressed File");
@@ -83,9 +85,10 @@ public class Compress{
             String head = "";
             for(Map.Entry<IHuffmanBaseNode,String> entry : header.entrySet()){
                 HuffmanLeafNode node = (HuffmanLeafNode) entry.getKey();
-                head += node.value() + "," + entry.getValue() + "`";
-                // fos.write(head.getBytes(StandardCharsets.UTF_8));
-                output.write(node.value() + "," + entry.getValue() + "`");
+                // head += node.value() + "," + entry.getValue() + "`";
+                // output.write(node.value() + "," + entry.getValue() + "`");
+                head += node.value() + "`" + entry.getValue() + "<>";
+                output.write(node.value() + "`" + entry.getValue() + "<>");
             }
             output.write("\n");
             System.out.println("Header created successfully:");
@@ -97,6 +100,8 @@ public class Compress{
                 Scanner keyboard = new Scanner(f);
 
                 StringBuilder encodedData = new StringBuilder();
+                StringBuilder binaryStr = new StringBuilder();
+                // String binaryStr = "";
 
                 System.out.println("Encoding data");
                 while(keyboard.hasNextLine()){
@@ -104,17 +109,41 @@ public class Compress{
                     encodedData.append(data);
                     //Need to match the get to the existing IHuffmanBaseNode characters
                     for(char c : data.toCharArray()){
+                        binaryStr.append(convertedMap.getOrDefault(c,""));
+                        // binaryStr += convertedMap.getOrDefault(c,"");
                         output.write(convertedMap.getOrDefault(c,""));
                     }
                 }
                 System.out.println("Data encoded successfully:");
                 System.out.println(encodedData);
+                System.out.println("Binary Values of the encodedData:");
+                System.out.println(binaryStr);
+
+                // Pack bit strings into bytes
+                StringBuilder buffer = new StringBuilder();
+                List<Byte> packedBytes = new ArrayList<>();
+
+                for (char bit : binaryStr.toString().toCharArray()) {
+                    buffer.append(bit);
+
+                    if (buffer.length() == 8) {
+                        packedBytes.add((byte) Integer.parseInt(buffer.toString(), 2));
+                        buffer.setLength(0);  // Clear buffer
+                    }
+                }
+
+                if (buffer.length() > 0) {
+                    while (buffer.length() < 8) {
+                        buffer.append('0');
+                    }
+                    packedBytes.add((byte) Integer.parseInt(buffer.toString(), 2));
+                }
                 
                 keyboard.close();
             }catch (FileNotFoundException e){
                 System.out.println("[ERROR] The file could not be opened.");
                 e.printStackTrace();
-            }            
+            }
 
             output.close();
         }catch(IOException e){
@@ -131,11 +160,13 @@ public class Compress{
             Scanner keyboard = new Scanner(file);
             while(keyboard.hasNextLine()){
                 String data = keyboard.nextLine();
-                String[] codes = data.split("`");
+                // String[] codes = data.split("`");
+                String[] codes = data.split("<>");
                 for(String code : codes){
                     System.out.println(code);
-                    String[] keyValPair = code.split(",");
-                    if(keyValPair[0] == "") keyValPair[0] = ",";
+                    // String[] keyValPair = code.split(",");
+                    String[] keyValPair = code.split("`");
+                    // if(keyValPair[0] == "") keyValPair[0] = ",";
                     headerPrefixTable.put(keyValPair[1],keyValPair[0].charAt(0));
                 }
                 break;
