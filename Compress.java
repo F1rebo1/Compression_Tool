@@ -2,7 +2,9 @@ import java.util.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -79,7 +81,7 @@ public class Compress{
     //         // FileOutputStream fos = new FileOutputStream(compressedFileName + ".txt");
     //         // FileWriter fw = new FileWriter(file + ".bin");
     //         BufferedWriter output = new BufferedWriter(fw);
-    //         // out.write("Writing to Compressed File");
+    //         output.write("Writing to Compressed File");
 
     //         //Writing the header (prefixTable) so that we can decode the compressed file
     //         System.out.println("Writing header");
@@ -185,7 +187,29 @@ public class Compress{
     // }
 
     public static void writeToCompressedFile(String fileName, String compressedFileName, HashMap<Character,Integer> charFreqs, HashMap<IHuffmanBaseNode,String> prefixTable){
+        HashMap<Character,String> convertedMap = new HashMap<>();
+        for(Map.Entry<IHuffmanBaseNode,String> entry : prefixTable.entrySet()){
+            HuffmanLeafNode node = (HuffmanLeafNode) entry.getKey();
+            convertedMap.put(node.value(),entry.getValue());
+        }        
         try{
+            // File f = new File(fileName);
+            // Scanner keyboard = new Scanner(f);
+
+            // StringBuilder encodedData = new StringBuilder();
+            // StringBuilder binaryStr = new StringBuilder();
+
+            // System.out.println("Encoding data");
+            // while(keyboard.hasNextLine()){
+            //     String data = keyboard.nextLine();
+            //     encodedData.append(data);
+            //     //Need to match the get to the existing IHuffmanBaseNode characters
+            //     for(char c : data.toCharArray()){
+            //         binaryStr.append(convertedMap.getOrDefault(c,""));
+            //     }
+            // }
+            // keyboard.close();
+
             File file = new File(compressedFileName + ".txt");
             FileWriter fw = new FileWriter(file);
             // FileOutputStream fos = new FileOutputStream(compressedFileName + ".txt");
@@ -197,7 +221,7 @@ public class Compress{
             String head = "";
             for(Map.Entry<Character,Integer> entry : charFreqs.entrySet()){
                 head += entry.getKey() + "`" + entry.getValue() + "`";
-                // output.write(entry.getKey() + ":" + entry.getValue() + " ");
+                // output.write(entry.getKey() + "`" + entry.getValue() + "`");
                 // head += node.value() + "," + entry.getValue() + "`";
                 // output.write(node.value() + "," + entry.getValue() + "`");
                 // head += node.value() + "`" + entry.getValue() + "<>";
@@ -210,7 +234,7 @@ public class Compress{
 
             packBits(output,fileName,prefixTable);
 
-            output.close();
+            // output.close();
         }catch(IOException e){
             System.err.println("Error: " + e.getMessage());
         }
@@ -239,6 +263,7 @@ public class Compress{
                     binaryStr.append(convertedMap.getOrDefault(c,""));
                 }
             }
+
             // try{
             //     System.out.println("Encoding data");
             //     while(keyboard.hasNextLine()){
@@ -255,25 +280,46 @@ public class Compress{
             //     System.err.println("Error: " + e.getMessage());
             // }
             System.out.println("Data encoded successfully:");
-            System.out.println(encodedData);
+            // System.out.println(encodedData);
             System.out.println("Binary Values of the encodedData:");
-            System.out.println(binaryStr);
+            // System.out.println(binaryStr);
+            System.out.println("[1] HENLO SIR");
+
+            // try{
+            //     int bitsToWrite = binaryStr.toString().length();
+            //     int bitPosition = 0;
+            //     DataOutputStream dos = new DataOutputStream(new FileOutputStream("test2_output_boi.txt"));
+            //     while (bitsToWrite > 0) {
+            //         byte toWrite = 0;
+            //         for (int i = 0; i < 8 && bitPosition < binaryStr.toString().length(); i++) {
+            //         toWrite |= (binaryStr.toString().charAt(bitPosition) == '1' ? 1 : 0) << (7 - i);
+            //         bitPosition++;
+            //         bitsToWrite--;
+            //         }
+            //         System.out.println("THIS IS A BYTE: " + toWrite);
+            //         dos.writeByte(toWrite);
+            //     }
+            // }catch(IOException e){
+            //     System.out.println(e);
+            // }
 
             // Pack bit strings into bytes
             // StringBuilder buffer = new StringBuilder();
             // List<Byte> packedBytes = new ArrayList<>();
             String oldBinaryStr = binaryStr.toString();
             StringBuilder paddedBitString = binaryStr;
-            while(paddedBitString.length() % 8 != 0){
+            while(paddedBitString.toString().length() % 8 != 0){
                 paddedBitString.append("0");
             }
+            System.out.println("[2] HENLO SIR");
 
             int padding = paddedBitString.toString().length() - oldBinaryStr.length();    //By subtracting the binary value length from the padded binary value length,
             int byteCount = paddedBitString.length() / 8;                   //we find the number of padded bits
-            int[] bytes = new int[byteCount];
+            // int[] bytes = new int[byteCount];
+            byte[] bytes = new byte[byteCount];
 
-            System.out.println("padding = " + padding);
-            System.out.println("paddedBitString = " + paddedBitString.toString());
+            // System.out.println("padding = " + padding);
+            // System.out.println("paddedBitString = " + paddedBitString.toString());
 
             // System.out.println("Padded binary Values of the encodedData (paddedBitString):");
             // System.out.println(paddedBitString);
@@ -289,30 +335,42 @@ public class Compress{
             // String res = padStart(decStr,padding);
             // System.out.println("[PADDED] res = " + res);
             // System.out.println(Integer.toBinaryString(dec));
-
+            System.out.println("[3] HENLO SIR");
+            System.out.println("byteCount = " + byteCount);
             for(int i = 0; i < byteCount; i++) {
+                // System.out.println("Processing loop: " + i);
                 int start = i * 8;
                 int end = start + 8;
                 String byteStr = paddedBitString.toString().substring(start, end);
-                bytes[i] = Integer.parseInt(byteStr, 2);
+                int byteInt = Integer.parseInt(byteStr, 2);
+                byte byteVal = (byte) byteInt;
+                bytes[i] = byteVal;
             }
-            
+            System.out.println("[4] HENLO SIR");
             String binaryString = "";
             String resultString = "";
-
-            for(int i = 0; i < bytes.length; i++) {
-                int byteNum = bytes[i];
-                System.out.println("byteNum: " + byteNum);
-                resultString += byteNum + " ";
-                binaryString += padStart(String.valueOf(Integer.toBinaryString(byteNum)));
+            
+            try{
+                DataOutputStream dos = new DataOutputStream(new FileOutputStream("test3_output_boi.txt"));
+                for(int i = 0; i < bytes.length; i++) {
+                    byte byteNum = bytes[i];
+                    dos.writeByte(byteNum);
+                    // System.out.println("byteNum: " + byteNum);
+                    resultString += byteNum + " ";
+                    // binaryString += padStart(String.valueOf(Integer.toBinaryString(byteNum)));
+                }
+            }catch(IOException e){
+                System.out.println(e);
             }
-            System.out.println("[Padded] binaryString = " + binaryString);
-            // Remove padding
-            binaryString = binaryString.substring(0, binaryString.length() - padding);
-            System.out.println("[Unpadded] binaryString = " + binaryString);
 
+            // System.out.println("[Padded] binaryString = " + binaryString);
+            // Remove padding
+            // binaryString = binaryString.substring(0, binaryString.length() - padding);
+            // System.out.println("[Unpadded] binaryString = " + binaryString);
+            System.out.println("[5] HENLO SIR");
             try{
                 output.write(String.valueOf(resultString));
+                output.close();
             }catch(IOException e){
                 System.out.println("IOException e");
             }
@@ -336,7 +394,7 @@ public class Compress{
 
     public static String padStart(String dec){
         String res = dec;
-        System.out.println("res = " + res);
+        // System.out.println("res = " + res);
         while(res.length() < 8){
             res = "0" + res;
         }
