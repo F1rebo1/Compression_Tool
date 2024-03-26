@@ -50,17 +50,15 @@ public class HuffmanTree implements Comparable{
         if(internalNode == null || internalNode.isLeaf()) return;
         
         if(internalNode.left().isLeaf()){
-            HuffmanLeafNode node = (HuffmanLeafNode) internalNode.left();
-            System.out.println("Adding 0 to " + node.value());
-            // System.out.println("Adding 0 to " + internalNode.left().value());
+            // HuffmanLeafNode node = (HuffmanLeafNode) internalNode.left();
+            // System.out.println("Adding 0 to " + node.value());
             prefixTable.put(internalNode.left(),prefixTable.getOrDefault(internalNode.left(),"") + toBeAdded + "0");
         }
         createTable(internalNode.left(),prefixTable,toBeAdded + "0");
 
         if(internalNode.right().isLeaf()){
-            HuffmanLeafNode node = (HuffmanLeafNode) internalNode.right();
-            System.out.println("Adding 1 to " + node.value());
-            // System.out.println("Adding 1 to " + internalNode.right().value());
+            // HuffmanLeafNode node = (HuffmanLeafNode) internalNode.right();
+            // System.out.println("Adding 1 to " + node.value());
             prefixTable.put(internalNode.right(),prefixTable.getOrDefault(internalNode.right(),"") + toBeAdded + "1");
         }
         createTable(internalNode.right(),prefixTable,toBeAdded + "1");

@@ -1,13 +1,25 @@
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
 public class Program {
+    public static final String ANSI_RESET = "\u001B[0m"; 
+    public static final String ANSI_YELLOW = "\u001B[33m"; 
     public static void main(String args[]){
-        String fileName = args[0];
+        String compDecompFlag = args[0], fileName = args[1];
+
+        if(args.length != 3){
+            System.err.println(ANSI_YELLOW + "[ERROR] Missing arguments: needed 3, but only found " + args.length + ANSI_RESET);
+            return;
+        }
 
         HashMap<Character,Integer> hm = countChars(fileName);
         PriorityQueue<HuffmanTree> pq = new PriorityQueue<>((a,b) -> a.weight() - b.weight());
@@ -34,18 +46,27 @@ public class Program {
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
         }
         
-        for(String s : args) System.out.println(s);
-        String compressedFileName = args[1];
+        // for(String s : args) System.out.println(s);
+        String compDecompFileName = args[2];
         
         //fileName refers to the file being read and compressed
         //compressedFileName is the name of the compressed file
         // writeToCompressedFile(fileName,compressedFileName,prefixTable);
-        Compress.writeHeader(fileName,hm);
-        Compress.writeDataToCompressedFile(fileName,compressedFileName,hm,prefixTable);
-
-        String newFile = "uncompressed.txt";
-        int byteNum = 3;
-        Decompress.decompressFile(compressedFileName,newFile,byteNum);
+        
+        if(compDecompFlag.equals("-c") || compDecompFlag.equals("--compress")){
+            try{
+                String data = new String(Files.readAllBytes(Paths.get(fileName)));
+                Compress.writeDataToCompressedFile(data,compDecompFileName,charToBitSeq);
+            }catch(IOException e){
+                System.err.println("[ERROR] " + e);
+            }
+        }else if(compDecompFlag.equals("-d") || compDecompFlag.equals("--decompress")){
+            int byteNum = 3;
+            Decompress.decompressFile(fileName,compDecompFileName,byteNum);
+        }else{
+            System.err.println(ANSI_YELLOW + "[ERROR] Incorrect flag: please use either -c/--compress, or -d/--decompress" + ANSI_RESET);
+            return;
+        }
     }
 
     public static HashMap<Character,Integer> countChars(String fileName){
@@ -60,7 +81,7 @@ public class Program {
             }
             keyboard.close();
         }catch (FileNotFoundException e){
-            System.out.println("[ERROR] The file could not be opened.");
+            System.err.println("[ERROR] The file could not be opened.");
             e.printStackTrace();
         }
 

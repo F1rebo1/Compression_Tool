@@ -16,25 +16,78 @@ import java.io.FileOutputStream;
 
 public class Compress{
 
-    public static void writeHeader(String fileName,HashMap<Character,Integer> hm){
+    public static void writeHeader(DataOutputStream dos, HashMap<Character,String> hm){
         System.out.println("[writeHeader]");
-        // for (Map.Entry<Character, String> entry : hm.entrySet()) {
-        //     // Write the character
-        //     dos.writeChar(entry.getKey());
-        //     // Write the Huffman code as bits
-        //     dos.writeByte(entry.getValue().length());
-        //     writeHuffmanCodeAsBits(dos, entry.getValue());
-        // }
-    }
-
-    public static void writeDataToCompressedFile(String fileName,String compressedFileName,HashMap<Character,Integer> hm,HashMap<IHuffmanBaseNode,String> prefixTable){
-        System.out.println("[writeDataToCompressedFile]");   
-    }
-
-    public static String padStart(String num){
-        while(num.length() % 8 != 0){
-            num = "0" + num;
+        try{
+            for(Map.Entry<Character, String> entry : hm.entrySet()){
+                dos.writeChar(entry.getKey());
+                dos.writeByte(entry.getValue().length());
+                writeHuffmanCodeAsBits(dos,entry.getValue());
+            }
+        }catch(IOException e){
+            System.err.println("[ERROR] " + e);
         }
-        return num;
+    }
+
+    public static void writeHuffmanCodeAsBits(DataOutputStream dos, String bitString){
+        System.out.println("[writeHuffmanCodeAsBits]");
+        try{
+            int bitsToWrite = bitString.length();
+            int bitPosition = 0;
+            while(bitsToWrite > 0){
+                byte toWrite = 0;
+                for (int i = 0; i < 8 && bitPosition < bitString.length(); i++) {
+                    toWrite |= (bitString.charAt(bitPosition) == '1' ? 1 : 0) << (7 - i);
+                    bitPosition++;
+                    bitsToWrite--;
+                }
+                dos.writeByte(toWrite);
+            }
+        }catch(IOException e){
+            System.err.println("[ERROR] " + e);
+        }
+    }
+
+    public static void writeDataToCompressedFile(String fileData, String compDecompFileName, HashMap<Character,String> charToBitSeq){
+        System.out.println("[writeDataToCompressedFile]");
+
+        StringBuilder encodedText = new StringBuilder();
+        for(char c : fileData.toCharArray()) encodedText.append(charToBitSeq.get(c));
+
+        byte[] byteOutput = encodeToByteArray(encodedText.toString());
+        int padding = computePadding(encodedText.toString());
+
+        writeAllData(compDecompFileName,byteOutput,padding,charToBitSeq);
+    }
+
+    public static byte[] encodeToByteArray(String text){
+        int numBytes = (int)Math.ceil(text.length() / 8.0);
+        byte[] output = new byte[numBytes];
+        for(int i = 0; i < text.length(); i+=8){
+            String byteStr = text.substring(i,Math.min(i + 8,text.length()));
+            output[i/8] = (byte)Integer.parseInt(byteStr,2);
+        }
+        return output;
+    }
+
+    public static int computePadding(String txt){
+        int padding = 8 - txt.length() % 8;
+        if (padding == 8) padding = 0;
+        return padding;
+    }
+
+    public static void writeAllData(String compDecompFileName, byte[] byteOutput, int padding, HashMap<Character,String> charToBitSeq){
+        try{
+            DataOutputStream dos = new DataOutputStream(new FileOutputStream(compDecompFileName));
+            try{
+                dos.writeInt(padding);
+                writeHeader(dos,charToBitSeq);
+                dos.write(byteOutput);
+            }catch(IOException e){
+                System.err.println("[ERROR] " + e);
+            }
+        }catch(FileNotFoundException e){
+            System.err.println("[ERROR] " + e);
+        }
     }
 }
