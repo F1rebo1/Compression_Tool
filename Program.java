@@ -1,7 +1,10 @@
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,6 +14,7 @@ import java.util.PriorityQueue;
 import java.util.Scanner;
 
 public class Program {
+    private static final boolean printDebugs = false;
     public static final String ANSI_RESET = "\u001B[0m"; 
     public static final String ANSI_YELLOW = "\u001B[33m"; 
     public static void main(String args[]){
@@ -43,15 +47,11 @@ public class Program {
         }
 
         for(Map.Entry<Character,String> entry : charToBitSeq.entrySet()){
-            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+            if(printDebugs) System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
         }
         
         // for(String s : args) System.out.println(s);
         String compDecompFileName = args[2];
-        
-        //fileName refers to the file being read and compressed
-        //compressedFileName is the name of the compressed file
-        // writeToCompressedFile(fileName,compressedFileName,prefixTable);
         
         if(compDecompFlag.equals("-c") || compDecompFlag.equals("--compress")){
             try{
@@ -71,19 +71,38 @@ public class Program {
 
     public static HashMap<Character,Integer> countChars(String fileName){
         HashMap<Character,Integer> hm = new HashMap<>();
-        
+
         try{
-            File file = new File(fileName);
-            Scanner keyboard = new Scanner(file);
-            while(keyboard.hasNextLine()){
-                String data = keyboard.nextLine();
-                for(char c : data.toCharArray()) hm.put(c,hm.getOrDefault(c,0) + 1);
+            FileReader fr = new FileReader(fileName);
+            try{
+                int c;
+                while((c = fr.read()) != -1){
+                    hm.put((char)c,hm.getOrDefault((char)c,0) + 1);
+                }
+                fr.close();
+            }catch(IOException e){
+                System.err.println("[ERROR] " + e);
             }
-            keyboard.close();
-        }catch (FileNotFoundException e){
-            System.err.println("[ERROR] The file could not be opened.");
-            e.printStackTrace();
+        }catch(FileNotFoundException e){
+            System.err.println("[ERROR] " + e);
         }
+        
+        // try{
+        //     File file = new File(fileName);
+        //     Scanner keyboard = new Scanner(file);
+        //     while(keyboard.hasNextLine()){
+        //         String data = keyboard.nextLine();
+        //         data += '\n';
+        //         for(char c : data.toCharArray()){
+        //             hm.put(c,hm.getOrDefault(c,0) + 1);
+        //             // if(c == '\n') System.out.println("[countChars] FOUND A NEW LINE");
+        //         }
+        //     }
+        //     keyboard.close();
+        // }catch (FileNotFoundException e){
+        //     System.err.println("[ERROR] The file could not be opened.");
+        //     e.printStackTrace();
+        // }
 
         return hm;
     }
