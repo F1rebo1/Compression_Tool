@@ -1,9 +1,14 @@
 import java.util.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.io.FileNotFoundException;
@@ -11,8 +16,6 @@ import java.io.FileOutputStream;
 
 public class Compress{
     public static void main(String args[]){
-        // String fileName = "./test.txt";
-        // String fileName = "./test2.txt";
         String fileName = args[0];
 
         HashMap<Character,Integer> hm = countChars(fileName);
@@ -29,24 +32,18 @@ public class Compress{
 
         HashMap<IHuffmanBaseNode,String> prefixTable = new HashMap<>(); //prefixTable now stores the encoding data mapping each character to its corresponding bit string
         root.createPrefixTable(root,prefixTable);
-
-        // for(Map.Entry<IHuffmanBaseNode,String> entry : prefixTable.entrySet()){
-        //     HuffmanLeafNode node = (HuffmanLeafNode) entry.getKey();
-        //     System.out.println("Key: " + node.value() + ", Prefix Code = " + entry.getValue() + ", " + Integer.parseInt(entry.getValue(), 2));
-        // }
         
-        // System.out.println("Your arguments are: ");
         for(String s : args) System.out.println(s);
         String compressedFileName = args[1];
-        // System.out.println("The output (compressed) file will be called: " + compressedFileName + ".txt");
         
         //fileName refers to the file being read and compressed
         //compressedFileName is the name of the compressed file
         // writeToCompressedFile(fileName,compressedFileName,prefixTable);
         writeToCompressedFile(fileName,compressedFileName,hm,prefixTable);
 
-        // String newFile = "uncompressed.txt";
-        // decompressFile(compressedFileName,newFile);
+        String newFile = "uncompressed.txt";
+        int byteNum = 3;
+        decompressFile(compressedFileName,newFile,byteNum);
     }
 
     public static HashMap<Character,Integer> countChars(String fileName){
@@ -67,124 +64,6 @@ public class Compress{
 
         return hm;
     }
-
-    // public static void writeToCompressedFile(String fileName, String compressedFileName, HashMap<IHuffmanBaseNode,String> header){
-    //     HashMap<Character,String> convertedMap = new HashMap<>();
-    //     for(Map.Entry<IHuffmanBaseNode,String> entry : header.entrySet()){
-    //         HuffmanLeafNode node = (HuffmanLeafNode) entry.getKey();
-    //         convertedMap.put(node.value(),entry.getValue());
-    //     }
-
-    //     try{
-    //         File file = new File(compressedFileName + ".txt");
-    //         FileWriter fw = new FileWriter(file);
-    //         // FileOutputStream fos = new FileOutputStream(compressedFileName + ".txt");
-    //         // FileWriter fw = new FileWriter(file + ".bin");
-    //         BufferedWriter output = new BufferedWriter(fw);
-    //         output.write("Writing to Compressed File");
-
-    //         //Writing the header (prefixTable) so that we can decode the compressed file
-    //         System.out.println("Writing header");
-    //         String head = "";
-    //         for(Map.Entry<IHuffmanBaseNode,String> entry : header.entrySet()){
-    //             HuffmanLeafNode node = (HuffmanLeafNode) entry.getKey();
-    //             // head += node.value() + "," + entry.getValue() + "`";
-    //             // output.write(node.value() + "," + entry.getValue() + "`");
-    //             head += node.value() + "`" + entry.getValue() + "<>";
-    //             output.write(node.value() + "`" + entry.getValue() + "<>");
-    //         }
-    //         output.write("\n");
-    //         System.out.println("Header created successfully:");
-    //         System.out.println(head);
-
-    //         //Encoding and writing the encoded contents of the file to be compressed
-    //         try{
-    //             File f = new File(fileName);
-    //             Scanner keyboard = new Scanner(f);
-
-    //             StringBuilder encodedData = new StringBuilder();
-    //             StringBuilder binaryStr = new StringBuilder();
-    //             // String binaryStr = "";
-
-    //             System.out.println("Encoding data");
-    //             while(keyboard.hasNextLine()){
-    //                 String data = keyboard.nextLine();
-    //                 encodedData.append(data);
-    //                 //Need to match the get to the existing IHuffmanBaseNode characters
-    //                 for(char c : data.toCharArray()){
-    //                     binaryStr.append(convertedMap.getOrDefault(c,""));
-    //                     // binaryStr += convertedMap.getOrDefault(c,"");
-    //                     output.write(convertedMap.getOrDefault(c,""));
-    //                 }
-    //             }
-    //             System.out.println("Data encoded successfully:");
-    //             System.out.println(encodedData);
-    //             System.out.println("Binary Values of the encodedData:");
-    //             System.out.println(binaryStr);
-
-    //             // Pack bit strings into bytes
-    //             // StringBuilder buffer = new StringBuilder();
-    //             // List<Byte> packedBytes = new ArrayList<>();
-                
-    //             StringBuilder paddedBitString = binaryStr;
-    //             while(paddedBitString.length() % 8 != 0){
-    //                 paddedBitString.append("0");
-    //             }
-
-    //             int padding = paddedBitString.length() - binaryStr.length();
-    //             int byteCount = paddedBitString.length() / 8;
-    //             int[] bytes = new int[byteCount];
-
-    //             for(int i = 0; i < byteCount; i++) {
-    //                 int start = i * 8;
-    //                 int end = start + 8;
-    //                 String byteStr = paddedBitString.toString().substring(start, end);
-    //                 bytes[i] = Integer.parseInt(byteStr, 2);
-    //             }
-                
-    //             String binaryString = "";
-
-    //             for(int i = 0; i < bytes.length; i++) {
-    //                 int byteNum = bytes[i];
-    //                 System.out.println("byteNum: " + byteNum);
-    //                 binaryString += String.valueOf(byteNum);
-    //             }
-    //             System.out.println("[Padded] binaryString = " + binaryString);
-    //             // Remove padding
-    //             binaryString = binaryString.substring(0, binaryString.length() - padding);
-    //             System.out.println("[Unpadded] binaryString = " + binaryString);
-
-    //             // output.write(binaryString);
-
-    //             // for(char bit : binaryStr.toString().toCharArray()){
-    //             //     buffer.append(bit);
-
-    //             //     if(buffer.length() == 8){
-    //             //         System.out.println("cur byte: " + (byte) Integer.parseInt(buffer.toString(), 2));
-    //             //         packedBytes.add((byte) Integer.parseInt(buffer.toString(), 2));
-    //             //         buffer.setLength(0);  // Clear buffer
-    //             //     }
-    //             // }
-
-    //             // if(buffer.length() > 0){
-    //             //     while(buffer.length() < 8){
-    //             //         buffer.append('0');
-    //             //     }
-    //             //     System.out.println("cur byte: " + (byte) Integer.parseInt(buffer.toString(), 2));
-    //             //     packedBytes.add((byte) Integer.parseInt(buffer.toString(), 2));
-    //             // }
-                
-    //             keyboard.close();
-    //         }catch (FileNotFoundException e){
-    //             System.out.println("[ERROR] The file could not be opened.");
-    //             e.printStackTrace();
-    //         }
-
-    //         output.close();
-    //     }catch(IOException e){
-    //         System.err.println("Error: " + e.getMessage());
-    //     }
-    // }
 
     public static void writeToCompressedFile(String fileName, String compressedFileName, HashMap<Character,Integer> charFreqs, HashMap<IHuffmanBaseNode,String> prefixTable){
         HashMap<Character,String> convertedMap = new HashMap<>();
@@ -219,18 +98,42 @@ public class Compress{
             //Writing the header (prefixTable) so that we can decode the compressed file
             System.out.println("Writing header");
             String head = "";
-            for(Map.Entry<Character,Integer> entry : charFreqs.entrySet()){
-                head += entry.getKey() + "`" + entry.getValue() + "`";
-                // output.write(entry.getKey() + "`" + entry.getValue() + "`");
-                // head += node.value() + "," + entry.getValue() + "`";
-                // output.write(node.value() + "," + entry.getValue() + "`");
-                // head += node.value() + "`" + entry.getValue() + "<>";
-                // output.write(node.value() + "`" + entry.getValue() + "<>");
+            // for(Map.Entry<Character,Integer> entry : charFreqs.entrySet()){
+            //     head += entry.getKey() + "`" + entry.getValue() + "`";
+            //     // output.write(entry.getKey() + "`" + entry.getValue() + "`");
+            // }
+            try{
+                DataOutputStream dos = new DataOutputStream(new FileOutputStream(compressedFileName + ".txt"));
+                for(Map.Entry<Character,Integer> entry : charFreqs.entrySet()){
+                    head += entry.getKey() + "`" + entry.getValue() + "`";
+                    dos.writeBytes(entry.getKey() + "`" + entry.getValue() + "`");
+                }
+
+                dos.writeBytes(">");
+                dos.writeBytes("\n");
+                dos.close();
+            }catch(IOException e){
+                System.out.println(e);
             }
-            // output.write("\n");
+            int bitsToWrite = head.length();
+            System.out.println("bitsToWrite = " + bitsToWrite);
+            // Testing/Debugging reading from a FileInputStream to read encoded data
+            try{
+                BufferedReader d = new BufferedReader(new InputStreamReader(new FileInputStream(compressedFileName + ".txt")));
+
+                System.out.println("DATA: ");
+                int i = 0;
+                while(i < 3){
+                    String str = d.readLine();
+                    System.out.println(str);
+                    i++;
+                }
+            }catch(IOException e){
+                System.out.println(e);
+            }
+
             System.out.println("Header created successfully:");
             System.out.println(head);
-            output.write(head + ">");
 
             packBits(output,fileName,prefixTable);
 
@@ -285,27 +188,7 @@ public class Compress{
             // System.out.println(binaryStr);
             System.out.println("[1] HENLO SIR");
 
-            // try{
-            //     int bitsToWrite = binaryStr.toString().length();
-            //     int bitPosition = 0;
-            //     DataOutputStream dos = new DataOutputStream(new FileOutputStream("test2_output_boi.txt"));
-            //     while (bitsToWrite > 0) {
-            //         byte toWrite = 0;
-            //         for (int i = 0; i < 8 && bitPosition < binaryStr.toString().length(); i++) {
-            //         toWrite |= (binaryStr.toString().charAt(bitPosition) == '1' ? 1 : 0) << (7 - i);
-            //         bitPosition++;
-            //         bitsToWrite--;
-            //         }
-            //         System.out.println("THIS IS A BYTE: " + toWrite);
-            //         dos.writeByte(toWrite);
-            //     }
-            // }catch(IOException e){
-            //     System.out.println(e);
-            // }
-
             // Pack bit strings into bytes
-            // StringBuilder buffer = new StringBuilder();
-            // List<Byte> packedBytes = new ArrayList<>();
             String oldBinaryStr = binaryStr.toString();
             StringBuilder paddedBitString = binaryStr;
             while(paddedBitString.toString().length() % 8 != 0){
@@ -338,7 +221,7 @@ public class Compress{
             System.out.println("[3] HENLO SIR");
             System.out.println("byteCount = " + byteCount);
             for(int i = 0; i < byteCount; i++) {
-                // System.out.println("Processing loop: " + i);
+                System.out.println("Processing loop: " + i);
                 int start = i * 8;
                 int end = start + 8;
                 String byteStr = paddedBitString.toString().substring(start, end);
@@ -351,7 +234,7 @@ public class Compress{
             String resultString = "";
             
             try{
-                DataOutputStream dos = new DataOutputStream(new FileOutputStream("test3_output_boi.txt"));
+                DataOutputStream dos = new DataOutputStream(new FileOutputStream("huffyboi.txt",true));
                 for(int i = 0; i < bytes.length; i++) {
                     byte byteNum = bytes[i];
                     dos.writeByte(byteNum);
@@ -360,7 +243,7 @@ public class Compress{
                     // binaryString += padStart(String.valueOf(Integer.toBinaryString(byteNum)));
                 }
             }catch(IOException e){
-                System.out.println(e);
+                System.out.println("[packBits] " + e);
             }
 
             // System.out.println("[Padded] binaryString = " + binaryString);
@@ -372,7 +255,7 @@ public class Compress{
                 output.write(String.valueOf(resultString));
                 output.close();
             }catch(IOException e){
-                System.out.println("IOException e");
+                System.out.println("[packBits -- write]" + e);
             }
             
             keyboard.close();
@@ -401,65 +284,147 @@ public class Compress{
         return res;
     }
 
-    public static void decompressFile(String compressedFileName, String newFile){
+    public static void decompressFile(String compressedFileName, String newFile, int byteNum){
+        try {
+            DataInputStream dis = new DataInputStream(new FileInputStream(compressedFileName + ".txt"));
+            BufferedReader d = new BufferedReader(new InputStreamReader(dis,"UTF-8"));
+            StringBuilder decodedData = new StringBuilder();
 
-        HashMap<String,Character> headerPrefixTable = new HashMap<>();
-        //First we want to read in the header and form the prefix table
-        try{
-            File file = new File(compressedFileName + ".txt");
-            Scanner keyboard = new Scanner(file);
-            while(keyboard.hasNextLine()){
-                String data = keyboard.nextLine();
-                // String[] codes = data.split("`");
-                String[] codes = data.split("<>");
-                for(String code : codes){
-                    System.out.println(code);
-                    // String[] keyValPair = code.split(",");
-                    String[] keyValPair = code.split("`");
-                    // if(keyValPair[0] == "") keyValPair[0] = ",";
-                    headerPrefixTable.put(keyValPair[1],keyValPair[0].charAt(0));
+            System.out.println("[6] HENLO SIR");
+            byte[] b = new byte[byteNum];
+            int i = 0, bitsToRead = 20;
+            while(bitsToRead > 0) {
+                byte curByte = dis.readByte();
+                // b[i] = dis.readByte();
+                for(int n = 7; n >= 0 && bitsToRead > 0; n--){
+                    boolean bit = ((curByte >> i) & 1) == 1;
+                    decodedData.append(bit ? '1' : '0');
+                    bitsToRead--;
                 }
-                break;
+                // String str = String.valueOf(b[i]);
+                System.out.println(decodedData.toString());
+                // String str = dis.readUTF();
+                // decodedData.append(str);
+                i++;
             }
 
-            //AABBBBCCCCDDDDDEEEEEEFFFFFFFGGGGGGGGHHHHHHHHHIIIIIIIIII
-
-            //[DEBUG] Printing out contents of headerPrefixTable
-            System.out.println("[decompressFile] Printing headerPrefixTable");
-            for(Map.Entry<String,Character> entry : headerPrefixTable.entrySet()){
-                System.out.println(entry.getValue() + "," + entry.getKey());
-            }
-            System.out.println("===========================================================");
-
-            try{
-                File f = new File(newFile);
-                FileWriter fw = new FileWriter(f);
-                BufferedWriter output = new BufferedWriter(fw);
-                
-                while(keyboard.hasNextLine()){
-                    String data = keyboard.nextLine();
-                    int start = 0, end = 1;
-                    System.out.println("data.length(): " + data.length());
-                    while(end < data.length() + 1){
-                        if(headerPrefixTable.containsKey(data.substring(start,end))){
-                            System.out.println("Found key: " + data.substring(start,end) + ", value: " + headerPrefixTable.get(data.substring(start,end)));
-                            output.write(headerPrefixTable.get(data.substring(start,end)));
-                            start = end;
-                        }
-                        end += 1;
-                    }
-                    break;
-                }
-
-                output.close();
-            }catch(IOException e){
-                System.err.println("Error: " + e.getMessage());
-            }
-
-            keyboard.close();
-        }catch (FileNotFoundException e){
-            System.out.println("[ERROR] The file could not be opened.");
-            e.printStackTrace();
+            dis.close();
+            // System.out.println("Decoded Data: " + decodedData.toString());
+        } catch (EOFException e) {
+            System.out.println("[decompressFile] EOF " + e);
+        } catch (IOException e) {
+            System.out.println(e);
         }
+
+        // try{
+        //     DataOutputStream dos = new DataOutputStream(new FileOutputStream(newFile));
+        //     DataInputStream dis = new DataInputStream(new FileInputStream(compressedFileName + ".txt"));
+        //     BufferedReader d = new BufferedReader(new InputStreamReader(new FileInputStream(compressedFileName + ".txt")));
+        //     StringBuffer inputLine = new StringBuffer();
+        //     // d.readLine();
+
+        //     byte[] bytes = new byte[byteNum];
+
+        //     System.out.println("[6] HENLO SIR");
+
+        //     System.out.println("DATA: ");
+        //     System.out.println(dis.readUTF());
+        //     // System.out.println(dis.readUTF());
+        //     // System.out.println(dis.readUTF());
+        //     // while(byteNum > 0){
+        //     //     System.out.println(dis.readUTF());
+        //     //     byte readByte = dis.readByte();
+        //     //     for (int i = 7; i >= 0 && byteNum > 0; i--) {
+        //     //         boolean bit = ((readByte >> i) & 1) == 1;
+        //     //         inputLine.append(bit ? '1' : '0');
+        //     //         byteNum--;
+        //     //     }
+        //     // }
+
+        //     // System.out.println("DATA: ");
+        //     // System.out.println(d.readLine());
+        //     // inputLine.append(d.readLine());
+        //     // String data = inputLine.toString();
+        //     // System.out.println(data);
+        //     // dos.writeChars(data);
+        // }catch(IOException e){
+        //     System.out.println("[ERROR: decompressFile -- reading] " + e);
+        // }
+        // try{
+        //     DataInputStream dis = new DataInputStream(new FileInputStream(compressedFileName + ".txt"));
+        //     StringBuilder outputString = new StringBuilder();
+        //     byte[] bytes = new byte[byteCount];
+        //     int byteNum = 0;
+
+        //     while(byteNum < byteCount){
+        //         byte b = dis.readByte();
+        //         bytes[byteNum] = b;
+        //         byteNum++;
+        //     }
+        // }catch(IOException e){
+        //     System.out.println(e);
+        // }
     }
+
+    // public static void decompressFile(String compressedFileName, String newFile){
+
+    //     HashMap<String,Character> headerPrefixTable = new HashMap<>();
+    //     //First we want to read in the header and form the prefix table
+    //     try{
+    //         File file = new File(compressedFileName + ".txt");
+    //         Scanner keyboard = new Scanner(file);
+    //         while(keyboard.hasNextLine()){
+    //             String data = keyboard.nextLine();
+    //             // String[] codes = data.split("`");
+    //             String[] codes = data.split("<>");
+    //             for(String code : codes){
+    //                 System.out.println(code);
+    //                 // String[] keyValPair = code.split(",");
+    //                 String[] keyValPair = code.split("`");
+    //                 // if(keyValPair[0] == "") keyValPair[0] = ",";
+    //                 headerPrefixTable.put(keyValPair[1],keyValPair[0].charAt(0));
+    //             }
+    //             break;
+    //         }
+
+    //         //AABBBBCCCCDDDDDEEEEEEFFFFFFFGGGGGGGGHHHHHHHHHIIIIIIIIII
+
+    //         //[DEBUG] Printing out contents of headerPrefixTable
+    //         System.out.println("[decompressFile] Printing headerPrefixTable");
+    //         for(Map.Entry<String,Character> entry : headerPrefixTable.entrySet()){
+    //             System.out.println(entry.getValue() + "," + entry.getKey());
+    //         }
+    //         System.out.println("===========================================================");
+
+    //         try{
+    //             File f = new File(newFile);
+    //             FileWriter fw = new FileWriter(f);
+    //             BufferedWriter output = new BufferedWriter(fw);
+                
+    //             while(keyboard.hasNextLine()){
+    //                 String data = keyboard.nextLine();
+    //                 int start = 0, end = 1;
+    //                 System.out.println("data.length(): " + data.length());
+    //                 while(end < data.length() + 1){
+    //                     if(headerPrefixTable.containsKey(data.substring(start,end))){
+    //                         System.out.println("Found key: " + data.substring(start,end) + ", value: " + headerPrefixTable.get(data.substring(start,end)));
+    //                         output.write(headerPrefixTable.get(data.substring(start,end)));
+    //                         start = end;
+    //                     }
+    //                     end += 1;
+    //                 }
+    //                 break;
+    //             }
+
+    //             output.close();
+    //         }catch(IOException e){
+    //             System.err.println("Error: " + e.getMessage());
+    //         }
+
+    //         keyboard.close();
+    //     }catch (FileNotFoundException e){
+    //         System.out.println("[ERROR] The file could not be opened.");
+    //         e.printStackTrace();
+    //     }
+    // }
 }
