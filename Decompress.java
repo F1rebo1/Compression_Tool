@@ -35,16 +35,15 @@ public class Decompress {
             int padding = dis.readInt();
             HashMap<String,Character> bitSeqToChar = fillMap(dis);
 
-            System.out.println("[decodeFile] Number of bytes available: " + dis.available());
             byte[] byteInput = new byte[dis.available()];
-            System.out.println("[decodeFile] Number of bytes available: " + dis.available());
-            System.out.println("byteInput.length = " + byteInput.length);
             dis.read(byteInput);
-            // for(byte binp : byteInput) System.out.println("b = " + binp);
-            System.out.println("[decodeFile] Number of bytes available: " + dis.available());
             getStringsFromBytes(encodedText,byteInput);
 
-            // if(padding > 0) encodedText.setLength(encodedText.length() - padding);
+            if(padding > 0){
+                String needed = encodedText.substring(encodedText.length() - padding,encodedText.length());
+                encodedText.setLength(encodedText.length() - 8);
+                encodedText.append(needed);
+            }
 
             decompress(encodedText,bitSeqToChar,newFile);
 
@@ -64,13 +63,9 @@ public class Decompress {
         if(printDebugs) System.out.println("[fillMap]");
         HashMap<String,Character> bitSeqToChar = new HashMap<>();
         try{
-            System.out.println("Henlo");
-            System.out.println("[fillMap] Number of bytes available: " + dis.available());
             int entries = dis.readInt();
-            System.out.println("entries = " + entries);
 
             for(int i = 0; i < entries; i++){
-                System.out.println("entry " + i);
                 char c = dis.readChar();
                 int len = dis.readByte() & 0xFF;
                 // System.out.println("c: " + c + ", len: " + len);

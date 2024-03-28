@@ -23,6 +23,8 @@ public class Compress{
         StringBuilder encodedText = new StringBuilder();
         for(char c : fileData.toCharArray()) encodedText.append(charToBitSeq.get(c));
 
+        System.out.println("[writeDataToCompressedFile] encodedText = " + encodedText.toString());
+
         byte[] byteOutput = encodeToByteArray(encodedText.toString());
         int padding = computePadding(encodedText.toString());
 
@@ -35,7 +37,6 @@ public class Compress{
         byte[] output = new byte[numBytes];
         for(int i = 0; i < text.length(); i+=8){
             String byteStr = text.substring(i,Math.min(i + 8,text.length()));
-            // System.out.println("byteStr = " + byteStr);
             output[i/8] = (byte)Integer.parseInt(byteStr,2);
         }
         return output;
@@ -69,7 +70,6 @@ public class Compress{
         try{
             dos.writeInt(hm.size());
             for(Map.Entry<Character, String> entry : hm.entrySet()){
-                System.out.println("headerwrite");
                 dos.writeChar(entry.getKey());
                 dos.writeByte(entry.getValue().length());
                 writeHuffmanCodeAsBits(dos,entry.getValue());
