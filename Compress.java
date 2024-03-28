@@ -67,6 +67,7 @@ public class Compress{
     public static void writeHeader(DataOutputStream dos, HashMap<Character,String> hm){
         if(printDebugs) System.out.println("[writeHeader]");
         try{
+            dos.writeInt(hm.size());
             for(Map.Entry<Character, String> entry : hm.entrySet()){
                 System.out.println("headerwrite");
                 dos.writeChar(entry.getKey());

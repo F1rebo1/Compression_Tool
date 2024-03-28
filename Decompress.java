@@ -27,19 +27,24 @@ public class Decompress {
     public static void decodeFile(String compressedFileName, String newFile){
         if(printDebugs) System.out.println("[decodeFile]");
         try{
-            BufferedReader b = new BufferedReader(new InputStreamReader(new FileInputStream(compressedFileName)));
+            // BufferedReader b = new BufferedReader(new InputStreamReader(new FileInputStream(compressedFileName)));
             DataInputStream dis = new DataInputStream(new FileInputStream(compressedFileName));
 
             StringBuilder encodedText = new StringBuilder();
 
             int padding = dis.readInt();
-            byte[] byteInput = new byte[dis.available()];
-            dis.read(byteInput);
-            
-            getStringsFromBytes(encodedText,byteInput);
             HashMap<String,Character> bitSeqToChar = fillMap(dis);
 
-            if(padding > 0) encodedText.setLength(encodedText.length() - padding);
+            System.out.println("[decodeFile] Number of bytes available: " + dis.available());
+            byte[] byteInput = new byte[dis.available()];
+            System.out.println("[decodeFile] Number of bytes available: " + dis.available());
+            System.out.println("byteInput.length = " + byteInput.length);
+            dis.read(byteInput);
+            // for(byte binp : byteInput) System.out.println("b = " + binp);
+            System.out.println("[decodeFile] Number of bytes available: " + dis.available());
+            getStringsFromBytes(encodedText,byteInput);
+
+            // if(padding > 0) encodedText.setLength(encodedText.length() - padding);
 
             decompress(encodedText,bitSeqToChar,newFile);
 
@@ -59,12 +64,16 @@ public class Decompress {
         if(printDebugs) System.out.println("[fillMap]");
         HashMap<String,Character> bitSeqToChar = new HashMap<>();
         try{
+            System.out.println("Henlo");
+            System.out.println("[fillMap] Number of bytes available: " + dis.available());
             int entries = dis.readInt();
+            System.out.println("entries = " + entries);
 
             for(int i = 0; i < entries; i++){
+                System.out.println("entry " + i);
                 char c = dis.readChar();
                 int len = dis.readByte() & 0xFF;
-                System.out.println("char c: " + c + ", len = " + len);
+                // System.out.println("c: " + c + ", len: " + len);
                 String huffCode = readHuffmanCodeAsBits(dis,len);
                 bitSeqToChar.put(huffCode,c);
             }
@@ -119,6 +128,7 @@ public class Decompress {
     // }
 
     public static void decompress(StringBuilder encodedText, HashMap<String,Character> bitSeqToChar, String newFile) throws IOException {
+        if(printDebugs) System.out.println("[decompress]");
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(newFile))) {
             String tempCode = "";
             for (int i = 0; i < encodedText.length(); i++) {
