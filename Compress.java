@@ -15,38 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 public class Compress{
-    private static final boolean printDebugs = false;
-    public static void writeHeader(DataOutputStream dos, HashMap<Character,String> hm){
-        if(printDebugs) System.out.println("[writeHeader]");
-        try{
-            for(Map.Entry<Character, String> entry : hm.entrySet()){
-                dos.writeChar(entry.getKey());
-                dos.writeByte(entry.getValue().length());
-                writeHuffmanCodeAsBits(dos,entry.getValue());
-            }
-        }catch(IOException e){
-            System.err.println("[ERROR] " + e);
-        }
-    }
-
-    public static void writeHuffmanCodeAsBits(DataOutputStream dos, String bitString){
-        if(printDebugs) System.out.println("[writeHuffmanCodeAsBits]");
-        try{
-            int bitsToWrite = bitString.length();
-            int bitPosition = 0;
-            while(bitsToWrite > 0){
-                byte toWrite = 0;
-                for(int i = 0; i < 8 && bitPosition < bitString.length(); i++){
-                    toWrite |= (bitString.charAt(bitPosition) == '1' ? 1 : 0) << (7 - i);
-                    bitPosition++;
-                    bitsToWrite--;
-                }
-                dos.writeByte(toWrite);
-            }
-        }catch(IOException e){
-            System.err.println("[ERROR] " + e);
-        }
-    }
+    private static final boolean printDebugs = true;
 
     public static void writeDataToCompressedFile(String fileData, String compDecompFileName, HashMap<Character,String> charToBitSeq){
         if(printDebugs) System.out.println("[writeDataToCompressedFile]");
@@ -91,6 +60,39 @@ public class Compress{
                 System.err.println("[ERROR] " + e);
             }
         }catch(FileNotFoundException e){
+            System.err.println("[ERROR] " + e);
+        }
+    }
+
+    public static void writeHeader(DataOutputStream dos, HashMap<Character,String> hm){
+        if(printDebugs) System.out.println("[writeHeader]");
+        try{
+            for(Map.Entry<Character, String> entry : hm.entrySet()){
+                System.out.println("headerwrite");
+                dos.writeChar(entry.getKey());
+                dos.writeByte(entry.getValue().length());
+                writeHuffmanCodeAsBits(dos,entry.getValue());
+            }
+        }catch(IOException e){
+            System.err.println("[ERROR] " + e);
+        }
+    }
+
+    public static void writeHuffmanCodeAsBits(DataOutputStream dos, String bitString){
+        if(printDebugs) System.out.println("[writeHuffmanCodeAsBits]");
+        try{
+            int bitsToWrite = bitString.length();
+            int bitPosition = 0;
+            while(bitsToWrite > 0){
+                byte toWrite = 0;
+                for(int i = 0; i < 8 && bitPosition < bitString.length(); i++){
+                    toWrite |= (bitString.charAt(bitPosition) == '1' ? 1 : 0) << (7 - i);
+                    bitPosition++;
+                    bitsToWrite--;
+                }
+                dos.writeByte(toWrite);
+            }
+        }catch(IOException e){
             System.err.println("[ERROR] " + e);
         }
     }

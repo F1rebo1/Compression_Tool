@@ -18,7 +18,10 @@ public class Program {
     public static final String ANSI_RESET = "\u001B[0m"; 
     public static final String ANSI_YELLOW = "\u001B[33m"; 
     public static void main(String args[]){
-        String compDecompFlag = args[0], fileName = args[1];
+        //compDecompFlag is the flag -c or -d indicating compression or decompression
+        //fileName is the file to be compressed or decompressed
+        //compDecompFileName is the output file
+        String compDecompFlag = args[0], fileName = args[1], compDecompFileName = args[2];
 
         if(args.length != 3){
             System.err.println(ANSI_YELLOW + "[ERROR] Missing arguments: needed 3, but only found " + args.length + ANSI_RESET);
@@ -50,9 +53,6 @@ public class Program {
             if(printDebugs) System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
         }
         
-        // for(String s : args) System.out.println(s);
-        String compDecompFileName = args[2];
-        
         if(compDecompFlag.equals("-c") || compDecompFlag.equals("--compress")){
             try{
                 String data = new String(Files.readAllBytes(Paths.get(fileName)));
@@ -61,8 +61,7 @@ public class Program {
                 System.err.println("[ERROR] " + e);
             }
         }else if(compDecompFlag.equals("-d") || compDecompFlag.equals("--decompress")){
-            int byteNum = 3;
-            Decompress.decompressFile(fileName,compDecompFileName,byteNum);
+            Decompress.decompressFile(fileName,compDecompFileName);
         }else{
             System.err.println(ANSI_YELLOW + "[ERROR] Incorrect flag: please use either -c/--compress, or -d/--decompress" + ANSI_RESET);
             return;
